@@ -1,0 +1,60 @@
+# TIP3 water box benchmark
+
+units		real	
+atom_style	full
+boundary        p p p
+
+read_data	tip3p.atom
+
+pair_style	hybrid lj/cut/coul/long 10.0 born/coul/long 10.0
+
+pair_coeff	1 1 lj/cut/coul/long 0.102 3.188	#O in water
+pair_coeff	1 2 lj/cut/coul/long 0 0
+pair_coeff	1 3 lj/cut/coul/long 0.129 3.184
+pair_coeff	1 4 lj/cut/coul/long 0.1 2.8855
+pair_coeff	1 5 lj/cut/coul/long 0.1 3.794
+
+pair_coeff	2 2 lj/cut/coul/long 0.0000 0.0000	#H in water
+pair_coeff	2 3 lj/cut/coul/long 0.0000 0.0000	#H in water
+pair_coeff	2 4 lj/cut/coul/long 0.0000 0.0000	#H in water
+pair_coeff	2 5 lj/cut/coul/long 0.0000 0.0000	#H in water
+
+pair_coeff	3 3	lj/cut/coul/long 0.1636	3.18086478325	#N in N2
+pair_coeff	3 4	lj/cut/coul/long 0.1636	2.882	#N in N2
+pair_coeff	3 5	lj/cut/coul/long 0.1636	3.79	#N in N2
+
+
+pair_coeff	4 4 born/coul/long 25.4435 0.317 2.34 101.1719	48.1771
+pair_coeff	4 5 born/coul/long 20.3548 0.317 2.755 674.4793	837.077
+pair_coeff	5 5 born/coul/long 15.2661 0.317 3.17 6982.6786	14031.5785
+
+pair_modify mix arithmetic
+
+kspace_style pppm 1.0e-4
+
+bond_style	harmonic
+angle_style	harmonic
+bond_coeff	1 450.00 0.9572
+bond_coeff	2 1221.7 1.098
+angle_coeff	1 55 104.52
+group gas type 3
+group water type 1 2
+
+velocity	all create 300 1234 dist uniform
+
+minimize 0 1.0e-8 100 10000
+
+dump		1 all custom 500 a.dump id type q x y z vx vy vz
+
+thermo_style    one
+thermo		500
+
+fix		1 all shake 0.0001 20 0 b 1 2 a 1
+fix		2 all nvt temp 300.0 300.0 100.0
+timestep	2.0
+run		1000000000
+
+run		10000
+
+
+
